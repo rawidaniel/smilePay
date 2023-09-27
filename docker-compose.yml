@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres
+    # restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=smilepay
+      - POSTGRES_PASSWORD=smilepay
+      - POSTGRES_DB=smilepay
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+
+  redis:
+    image: redis
+    # restart: always
+    ports:
+      - '6379:6379'
+
+volumes:
+  postgres:
