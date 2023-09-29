@@ -6,8 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nest-api-1
+    expose:
+      - 3000
     ports:
-      - '3008:3000'
+      - '3011:3000'
+    networks:
+        public_net:
+            ipv4_address: 192.168.0.11
     depends_on:
       - postgres
       - redis
@@ -21,8 +26,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nest-api-2
+    expose:
+      - 3000
     ports:
-      - '3009:3000'
+      - '3022:3000'
+    networks:
+        public_net:
+            ipv4_address: 192.168.0.22
     depends_on:
       - postgres
       - redis
@@ -38,6 +48,11 @@ services:
       - POSTGRES_USER=smilepay
       - POSTGRES_PASSWORD=smilepay
       - POSTGRES_DB=smilepay
+    expose:
+      - 5432
+    networks:
+        public_net:
+            ipv4_address: 192.168.0.55
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
@@ -46,6 +61,11 @@ services:
   redis:
     image: redis
     container_name: redis
+    expose:
+      - 6379
+    networks:
+        public_net:
+            ipv4_address: 192.168.0.66
     ports:
       - '6378:6379'
 
@@ -53,7 +73,7 @@ services:
       image: haproxy:1.7
       container_name: haproxy
       ports:
-          - 8080:80
+          - 8080:8080
       expose:
           - 8080
       volumes:
