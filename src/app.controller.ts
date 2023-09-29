@@ -11,4 +11,9 @@ export class AppController {
   status() {
     return { status: 'OK!' };
   }
+
+  @Get('/error')
+  throwError() {
+    throw new Error('this is test error');
+  }
 }

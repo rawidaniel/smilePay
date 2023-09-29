@@ -1,22 +1,20 @@
-FROM node:20.6.1
+FROM node:20.6.1 as build
+WORKDIR /usr/src/app
+COPY package* .
+COPY prisma ./prisma/
+RUN npm install
+COPY . .
+RUN npx prisma generate
+RUN npm run build
 
-WORKDIR /usr/src/api
+FROM node:20.6.1-slim
+RUN apt update && apt install libssl-dev dumb-init -y --no-install-recommends
+WORKDIR /usr/src/app
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node --from=build /usr/src/app/.env.docker .env.docker
+COPY --chown=node:node --from=build /usr/src/app/package* .
+RUN npm install
+COPY --chown=node:node --from=build /usr/src/app/node_modules/.prisma/client  ./node_modules/.prisma/client
 
-COPY --chown=node:node . .
-
-RUN npm i
-
-ENV NODE_ENV=development
-ENV DB_USER=smilepay
-ENV DB_PASSWORD=smilepay
-ENV DB_NAME=smilepay
-ENV DB_HOST=postgres
-ENV DB_PORT=5432
-ENV DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public"
-
-RUN echo "DATABASE_URL=${DATABASE_URL}" > .env && cat .env
-
-# RUN npx prisma migrate dev --name init
-
-USER node
-CMD npx prisma migrate dev --name init && npm run start:dev
+ENV NODE_ENV production
+CMD ["npm", "run", "start:prod"]

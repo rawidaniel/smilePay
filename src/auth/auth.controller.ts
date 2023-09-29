@@ -14,7 +14,7 @@ import { SerializeBigInt } from '../interceptors/serializeBigInt.interceptor';
 import { AuthenticatedGuard } from './guards/authenticated.guard';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { SiginDto } from './dtos/signin.dto';
-import { Seralize } from 'src/interceptors/serialize.interceptor';
+import { Seralize } from '../interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
 import { AuthResponse } from './dtos/authResponse.dto';
 import {
