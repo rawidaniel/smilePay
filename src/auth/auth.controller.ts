@@ -18,6 +18,7 @@ import { Seralize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
 import { AuthResponse } from './dtos/authResponse.dto';
 import {
+  ApiBadRequestResponse,
   ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -32,6 +33,9 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @ApiCreatedResponse({ description: 'create a new user', type: AuthResponse })
+  @ApiBadRequestResponse({
+    description: 'The provided email is already in use.',
+  })
   @Post('signup')
   @Seralize(UserDto)
   async signup(@Body() body: CreateUserDto): Promise<AuthResponse> {
@@ -41,6 +45,9 @@ export class AuthController {
   @ApiOkResponse({
     description: 'Successfully authenticated.',
     type: AuthResponse,
+  })
+  @ApiBadRequestResponse({
+    description: 'The provided credentials are invalid.',
   })
   @UseGuards(LocalAuthGuard)
   @Post('signin')

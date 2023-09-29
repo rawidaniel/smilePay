@@ -25,13 +25,13 @@ export class AuthService {
     const user = await this.usersService.findByEmail(data.email);
 
     if (!user) {
-      throw new BadRequestException('could not find user');
+      throw new BadRequestException('Invalid credentials');
     }
 
     const isPasswordMatch = await bcrypt.compare(data.password, user.password);
 
     if (!isPasswordMatch) {
-      throw new BadRequestException('invalid credentials');
+      throw new BadRequestException('Invalid credentials');
     }
 
     return user;
