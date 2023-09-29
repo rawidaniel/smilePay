@@ -101,6 +101,18 @@ services:
       - nest-api-2
       - haproxy
 
+  # locust:
+  #   image: locustio/locust
+  #   container_name: locust
+  #   ports:
+  #     - '8089:8089'
+  #   volumes:
+  #     - ./locust/locustfile.py:/mnt/locust/locustfile.py
+  #   depends_on:
+  #     - nest-api-1
+  #     - nest-api-2
+  #     - haproxy
+
 volumes:
   postgres:
 
