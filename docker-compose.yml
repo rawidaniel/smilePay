@@ -6,13 +6,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nest-api-1
+    restart: unless-stopped
     expose:
       - 3000
     ports:
       - '3011:3000'
-    networks:
-        public_net:
-            ipv4_address: 192.168.0.11
     depends_on:
       - postgres
       - redis
@@ -20,19 +18,20 @@ services:
       - .env.docker
     environment:
       - PORT=3000
+    networks:
+      - application_network
+      - monitoring_network
 
   nest-api-2:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: nest-api-2
+    restart: unless-stopped
     expose:
       - 3000
     ports:
       - '3022:3000'
-    networks:
-        public_net:
-            ipv4_address: 192.168.0.22
     depends_on:
       - postgres
       - redis
@@ -40,58 +39,67 @@ services:
       - .env.docker
     environment:
       - PORT=3000
+    networks:
+      - application_network
+      - monitoring_network
 
   postgres:
     image: postgres
     container_name: postgres
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=smilepay
       - POSTGRES_PASSWORD=smilepay
       - POSTGRES_DB=smilepay
     expose:
       - 5432
-    networks:
-        public_net:
-            ipv4_address: 192.168.0.55
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
       - '5433:5432'
+    networks:
+      - application_network
 
   redis:
     image: redis
     container_name: redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis:/data
     expose:
       - 6379
-    networks:
-        public_net:
-            ipv4_address: 192.168.0.66
     ports:
       - '6378:6379'
+    networks:
+      - application_network
 
   haproxy:
-      image: haproxy:1.7
-      container_name: haproxy
-      ports:
-          - 8080:8080
-      expose:
-          - 8080
-      volumes:
-          - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      depends_on:
-        - nest-api-1
-        - nest-api-2
-      networks:
-          public_net:
-              ipv4_address: 192.168.0.33
-      environment:
-          - NEST_1_IP=192.168.0.11
-          - NEST_2_IP=192.168.0.22
-          - NEST_EXPOSED_PORT=3000
+    image: haproxy:1.7
+    container_name: haproxy
+    restart: unless-stopped
+    ports:
+        - 8080:8080
+    expose:
+        - 8080
+    volumes:
+        - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    depends_on:
+      - nest-api-1
+      - nest-api-2
+    environment:
+        - NEST_1_IP=nest-api-1
+        - NEST_2_IP=nest-api-2
+        - NEST_EXPOSED_PORT=3000
+    networks:
+      - application_network
+      - monitoring_network
+      - load_testing_network
 
   prometheus:
     image: prom/prometheus
     container_name: prometheus
+    restart: unless-stopped
     ports:
       - '9090:9090'
     volumes:
@@ -100,26 +108,56 @@ services:
       - nest-api-1
       - nest-api-2
       - haproxy
+    networks:
+      - monitoring_network
 
-  # locust:
-  #   image: locustio/locust
-  #   container_name: locust
-  #   ports:
-  #     - '8089:8089'
-  #   volumes:
-  #     - ./locust/locustfile.py:/mnt/locust/locustfile.py
-  #   depends_on:
-  #     - nest-api-1
-  #     - nest-api-2
-  #     - haproxy
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3535:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+    networks:
+      - monitoring_network
+    depends_on:
+      - prometheus
+
+  jenkins:
+    image: jenkins/jenkins
+    container_name: jenkins
+    restart: unless-stopped
+    ports:
+      - "7070:8080"
+    volumes:
+      - jenkins:/var/jenkins_home
+    networks:
+      - application_network
+
+  locust:
+    image: locustio/locust
+    container_name: locust
+    restart: unless-stopped
+    ports:
+      - '8089:8089'
+    volumes:
+      - ./locust/locustfile.py:/mnt/locust/locustfile.py
+    command: -f /mnt/locust/locustfile.py --host=http://haproxy:8080/api
+    depends_on:
+      - nest-api-1
+      - nest-api-2
+      - haproxy
+    networks:
+      - load_testing_network
 
 volumes:
   postgres:
+  redis:
+  grafana:
+  jenkins:
 
 networks:
-    public_net:
-        driver: bridge
-        ipam:
-            driver: default
-            config:
-                - subnet: 192.168.0.0/24
+  load_testing_network:
+  application_network:
+  monitoring_network:
