@@ -96,6 +96,24 @@ services:
       - monitoring_network
       - load_testing_network
 
+  cadvisor:
+    image: google/cadvisor
+    container_name: cadvisor
+    ports:
+      - "4848:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+      - nest-api-1
+      - nest-api-2
+      - haproxy
+    networks:
+      - application_network
+      - monitoring_network
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -105,9 +123,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
-      - nest-api-1
-      - nest-api-2
-      - haproxy
+      - cadvisor
     networks:
       - monitoring_network
 
@@ -134,6 +150,9 @@ services:
       - jenkins:/var/jenkins_home
     networks:
       - application_network
+    depends_on:
+      - nest-api-1
+      - nest-api-2
 
   locust:
     image: locustio/locust
