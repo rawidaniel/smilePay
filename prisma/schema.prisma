@@ -10,14 +10,51 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  fullName     String
+  password     String
+  smile_id     BigInt
+  account_type String
+  created_at   DateTime      @default(now())
+  last_updated DateTime      @updatedAt
+  BillPayment  BillPayment[]
 
-model User{
-id  String @id @default(uuid())
-email String @unique
-fullName String
-password String
-smile_id BigInt
-account_type String
-created_at DateTime @default(now())
-last_updated DateTime @updatedAt
+  @@map("user")
+}
+
+model BillPayment {
+  id                String   @id @default(uuid())
+  manifest_id       String
+  bill_id           String
+  biller_id         String
+  amount            Float
+  paid_data         String
+  paid_at           DateTime
+  payee_mobile      String
+  txn_id            String
+  confirmation_code String
+  user              User     @relation(fields: [user_id], references: [id])
+  user_id           String
+  derash_status     Status   @relation("derash-status", fields: [derash_status_id], references: [id])
+  derash_status_id  String
+  smile_status      Status   @relation("smile-status", fields: [smile_status_id], references: [id])
+  smile_status_id   String
+  created_at        DateTime @default(now())
+  last_updated      DateTime @updatedAt
+
+  @@map("bill_payment")
+}
+
+model Status {
+  id            String        @id @default(uuid())
+  name          String
+  description   String
+  created_at    DateTime      @default(now())
+  last_updated  DateTime      @updatedAt
+  derash_status BillPayment[] @relation("derash-status")
+  smile_status  BillPayment[] @relation("smile-status")
+
+  @@map("status")
 }

@@ -4,7 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as session from 'express-session';
 import * as passport from 'passport';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -39,7 +39,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   const PORT = 3000;
-  await app.listen(PORT);
-  console.log(`Application is running on port : ${PORT}`);
+  await app.listen(PORT).then(() => {
+    Logger.log(`Server running on http://localhost:${PORT}`, 'Bootstrap');
+    Logger.log(`Swagger running on http://localhost:${PORT}/api`, 'Bootstrap');
+  });
 }
 bootstrap();
