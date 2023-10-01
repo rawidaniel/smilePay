@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { QueryDto } from './dtos/query.dto';
 import { CustomerBillDataDto } from './dtos/customerBillData.dto';
-import { ParamDto } from './dtos/param.dto';
 
 @Injectable()
 export class DerashService {
