@@ -73,3 +73,15 @@ services:
 
 volumes:
   maildata:
+
+
+
+
+PROMETHEUS QUERY
+_ _ _ _ _ _ _ _ _ _
+container_cpu_load_average_10s
+container_cpu_user_seconds_total
+
+engine_daemon_container_states_containers{state='running'}
+engine_daemon_container_states_containers{state='stopped'}
+engine_daemon_container_states_containers{state='paused'}

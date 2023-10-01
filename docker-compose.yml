@@ -126,9 +126,8 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
       - cadvisor
-    # networks:
-    #   - monitoring_network
-    network_mode: host
+    networks:
+      - monitoring_network
 
   grafana:
     image: grafana/grafana
