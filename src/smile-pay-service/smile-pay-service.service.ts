@@ -1,5 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateSmilePayServiceDto } from './dto/create-smile-pay-service.dto';
+import {
+  CreateSmilePayServiceDto,
+  ReversetTransaction,
+} from './dto/create-smile-pay-service.dto';
 import { UpdateSmilePayServiceDto } from './dto/update-smile-pay-service.dto';
 import { UsersService } from 'src/users/users.service';
 import { create } from 'domain';
@@ -59,10 +62,10 @@ export class SmilePayServiceService {
     );
   }
 
-  async reverseTransaction(transactionCode: string) {
+  async reverseTransaction(transactionCode: ReversetTransaction) {
     return {
-      status: 'SUCCESS',
-      message: `Transaction ${transactionCode} has been reversed.`,
+      status: '200',
+      message: `Transaction ${transactionCode.transactionCode} has been reversed.`,
     };
   }
 

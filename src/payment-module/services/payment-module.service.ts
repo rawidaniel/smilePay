@@ -49,35 +49,32 @@ export class PaymentModuleService {
         error.response.data.message,
         error.response.status,
       );
+    }
+  }
 
-      // switch (error.response.status) {
-      //   case 400:
-      //     throw new HttpException(
-      //       'Bad Request from SmilePay API',
-      //       HttpStatus.BAD_REQUEST,
-      //     );
-      //   case 401:
-      //     throw new HttpException(
-      //       'Unauthorized Access to SmilePay API',
-      //       HttpStatus.UNAUTHORIZED,
-      //     );
-      //   case 404:
-      //     throw new HttpException(
-      //       'SmilePay API Not Found',
-      //       HttpStatus.NOT_FOUND,
-      //     );
-      //   default:
-      //     throw new HttpException(
-      //       'Internal Server Error',
-      //       HttpStatus.INTERNAL_SERVER_ERROR,
-      //     );
-      // }
-      // } else {
-      //   throw new HttpException(
-      //     'Error sending request to SmilePay API',
-      //     HttpStatus.INTERNAL_SERVER_ERROR,
-      //   );
-      // }
+  async reverseSmilePayTransaction(transactionCode: string) {
+    const smilePayApiUrl = this.baseUrl + 'smile-pay-service/reverse';
+
+    Logger.log(smilePayApiUrl, 'smilePayApiUrl');
+
+    try {
+      Logger.log(
+        `sending confirmation code ${transactionCode} to ${smilePayApiUrl}`,
+      );
+      const smilePayApi = await axios.post(smilePayApiUrl, {
+        transactionCode,
+      });
+
+      Logger.log(smilePayApi.data.message, 'smilePayApi');
+      return smilePayApi.data;
+    } catch (error) {
+      Logger.error(error, 'error');
+
+      console.log('first error');
+      throw new HttpException(
+        error.response.data.message,
+        error.response.status,
+      );
     }
   }
 
@@ -107,15 +104,7 @@ export class PaymentModuleService {
       return derashResponse.data;
     } catch (error) {
       console.log('second error');
-      // Logger.log(error.response.data.message, 'error response');
-      // Logger.log(error.response.status, 'error status');
-      // if (error.response) {
-      //   Logger.error(`Error from SmilePay API: ${error}`);
 
-      // return {
-      //   message: error.response.data.message,
-      //   status: error.response.status,
-      // };
       throw new HttpException(
         error.response.data.message,
         error.response.status,

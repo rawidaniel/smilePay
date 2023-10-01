@@ -58,44 +58,97 @@ export class PaymentModuleController {
       );
       Logger.log(smilePayTransaction, 'smilePayTransaction');
 
-      if (query.statusOne === '200' && smilePayTransaction) {
-        // const bill_payment = await this.prisma.billPayment.create({
-        //   data: {
-        //     manifest_id: smilePayTransaction.manifest_id,
-        //     bill_id: smilePayTransaction.bill_id,
-        //     biller_id: smilePayTransaction.manifest_id,
-        //     amount: smilePayTransaction.amount,
-        //     paid_data: smilePayTransaction.paid_dt,
-        //     paid_at: smilePayTransaction.paid_at,
-        //     payee_mobile: smilePayTransaction.payee_mobile,
-        //     txn_id: smilePayTransaction.txn_code,
-        //     confirmation_code: smilePayTransaction.confirmation_code,
-        //     user_id: userId,
-        //   },
-        // });
-      }
-
       // return smilePayTransaction;
 
       // if there is error handle the error into user friendly message
 
       // if there is no error call the derash api to pay the bill
-      const queryString = {
-        status: query.statusTwo,
-        bill_id: smilePayTransaction.bill_id,
-        biller_id: smilePayTransaction.manifest_id,
-      };
-      const apiSecret = this.configService.get('DERASH_API_SECRET');
-      const apiKey = this.configService.get('DERASH_API_KEY');
-      const derashTransaction = await this.paymentModuleService.DerashPaymnet(
-        apiSecret,
-        apiKey,
-        queryString,
-        smilePayTransaction,
-      );
+      // const queryString = {
+      //   status: query.statusTwo,
+      //   bill_id: smilePayTransaction.bill_id,
+      //   biller_id: smilePayTransaction.manifest_id,
+      // };
+      // const apiSecret = this.configService.get('DERASH_API_SECRET');
+      // const apiKey = this.configService.get('DERASH_API_KEY');
+      // const derashTransaction = await this.paymentModuleService.DerashPaymnet(
+      //   apiSecret,
+      //   apiKey,
+      //   queryString,
+      //   smilePayTransaction,
+      // );
 
-      return derashTransaction;
+      // return derashTransaction;
       // if there is error handle the error into user friendly message
+
+      let derashTransaction;
+      try {
+        const queryString = {
+          status: query.statusTwo,
+          bill_id: smilePayTransaction.bill_id,
+          biller_id: smilePayTransaction.manifest_id,
+        };
+        const apiSecret = this.configService.get('DERASH_API_SECRET');
+        const apiKey = this.configService.get('DERASH_API_KEY');
+
+        derashTransaction = await this.paymentModuleService.DerashPaymnet(
+          apiSecret,
+          apiKey,
+          queryString,
+          smilePayTransaction,
+        );
+
+        if (
+          query.statusOne === '200' &&
+          query.statusTwo === '200' &&
+          smilePayTransaction
+        ) {
+          Logger.log('this is the data we saving ', smilePayTransaction);
+          const bill_payment = await this.prisma.billPayment.create({
+            data: {
+              manifest_id: smilePayTransaction.manifest_id,
+              bill_id: smilePayTransaction.bill_id,
+              biller_id: smilePayTransaction.manifest_id,
+              amount: +smilePayTransaction.amount,
+              paid_data: 'this is dummy data',
+              paid_at: 'aratkillo branch',
+              payee_mobile: smilePayTransaction.payee_mobile,
+              txn_id: smilePayTransaction.txn_code,
+              confirmation_code:
+                derashTransaction.confirmation_code || '39y238h93283u9',
+              user_id: userId,
+            },
+          });
+
+          Logger.log('Data have been saved', bill_payment);
+        }
+        return derashTransaction;
+      } catch (error) {
+        // Here, Derash transaction failed. We need to reverse SmilePay transaction.
+        try {
+          const reverseTransaction =
+            await this.paymentModuleService.reverseSmilePayTransaction(
+              '34df343f343rf',
+            );
+
+          Logger.error('reversed data', reverseTransaction);
+          if (reverseTransaction.status === '200') {
+            throw new HttpException(
+              `Derash Payment failed. Your SmilePay transaction has been reversed. Reason: ${error.message}`,
+              HttpStatus.BAD_REQUEST,
+            );
+          } else {
+            throw new HttpException(
+              `Derash Payment failed, and we couldn't reverse the SmilePay transaction. Please contact support.`,
+              HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+          }
+        } catch (reverseError) {
+          throw new HttpException(
+            `Error reversing SmilePay transaction: ${reverseError.message}`,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+      }
 
       // the reverse the transaction using smile pay reverse api
 

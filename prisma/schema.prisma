@@ -16,7 +16,7 @@ model User {
   fullName     String
   password     String
   smile_id     BigInt
-  balance      Float    @default(34000.34)
+  balance      Float         @default(34000.34)
   account_type String
   created_at   DateTime      @default(now())
   last_updated DateTime      @updatedAt
@@ -32,16 +32,16 @@ model BillPayment {
   biller_id         String
   amount            Float
   paid_data         String
-  paid_at           DateTime
+  paid_at           String
   payee_mobile      String
   txn_id            String
   confirmation_code String
   user              User     @relation(fields: [user_id], references: [id])
   user_id           String
-  derash_status     Status   @relation("derash-status", fields: [derash_status_id], references: [id])
-  derash_status_id  String
-  smile_status      Status   @relation("smile-status", fields: [smile_status_id], references: [id])
-  smile_status_id   String
+  derash_status     Status?  @relation("derash-status", fields: [derash_status_id], references: [id])
+  derash_status_id  String?
+  smile_status      Status?  @relation("smile-status", fields: [smile_status_id], references: [id])
+  smile_status_id   String?
   created_at        DateTime @default(now())
   last_updated      DateTime @updatedAt
 
