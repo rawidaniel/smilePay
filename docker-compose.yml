@@ -172,6 +172,26 @@ services:
     networks:
       - load_testing_network
 
+  nginx:
+    image: nginx:1.20.1
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8118:80
+    depends_on:
+      - haproxy
+      - cadvisor
+      - prometheus
+      - grafana
+      - jenkins
+      - locust
+    networks:
+      - load_testing_network
+      - application_network
+      - monitoring_network
+
 volumes:
   postgres:
   redis:
