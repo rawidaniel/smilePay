@@ -1,7 +1,18 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  Query,
+} from '@nestjs/common';
 import { SmilePayServiceService } from './smile-pay-service.service';
-import { CreateSmilePayServiceDto } from './dto/create-smile-pay-service.dto';
+import {
+  CreateSmilePayServiceDto,
+  QueryDto,
+} from './dto/create-smile-pay-service.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
 
 @ApiTags('smile-pay-service')
 @Controller('smile-pay-service')
@@ -10,10 +21,17 @@ export class SmilePayServiceController {
     private readonly smilePayServiceService: SmilePayServiceService,
   ) {}
 
+  @UseGuards(AuthenticatedGuard)
   @Post()
-  create(@Body() createSmilePayServiceDto: CreateSmilePayServiceDto) {
+  create(
+    @Body() createSmilePayServiceDto: CreateSmilePayServiceDto,
+    @Request() req,
+    @Query() query: QueryDto,
+  ) {
     return this.smilePayServiceService.initiatePayment(
       createSmilePayServiceDto,
+      req.user.userId,
+      query.status,
     );
   }
 

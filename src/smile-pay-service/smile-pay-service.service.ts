@@ -7,29 +7,38 @@ import { UsersService } from 'src/users/users.service';
 export class SmilePayServiceService {
   constructor(private readonly usersService: UsersService) {}
 
-  async initiatePayment(dto: CreateSmilePayServiceDto) {
-    const user = await this.usersService.findById(dto.userId);
+  async initiatePayment(
+    dto: CreateSmilePayServiceDto,
+    userId: string,
+    status: string,
+  ) {
+    console.log('initiatePayment', userId);
+    const user = await this.usersService.findById(userId);
+
     if (!user) {
       throw new HttpException('User does not exist.', HttpStatus.NOT_FOUND);
     }
 
     // update the user type to include a balance field
 
-    if (dto.amount <= 0) {
+    // if (dto.amount <= 0) {
+    if (status === '400') {
       throw new HttpException(
         'Invalid transaction amount.',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (user.balance < dto.amount) {
+    // if (user.balance < dto.amount) {
+    if (status === '402') {
       throw new HttpException(
         'Insufficient funds.',
         HttpStatus.PAYMENT_REQUIRED,
       );
     }
 
-    if (Math.random() < 0.35) {
+    // if (Math.random() < 0.35) {
+    if (status === '500 ') {
       throw new HttpException(
         'System error. Please try again later.',
         HttpStatus.INTERNAL_SERVER_ERROR,

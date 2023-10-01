@@ -1,11 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreatePaymentModuleDto } from '../dto/create-payment-module.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import axios from 'axios';
 
 @Injectable()
 export class PaymentModuleService {
   constructor(private prisma: PrismaService) {}
-  async create(createPaymentModuleDto: CreatePaymentModuleDto) {}
+  async create() {
+    let smileResponse;
+    try {
+      smileResponse = await axios.post(
+        `${process.env.API_URL}smile-pay-service?status=200`,
+        200,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      return smileResponse.data;
+    } catch (error) {
+      throw new HttpException(error.response.data, error.response.status);
+    }
+  }
 
   async mockSmilePayTransaction() {
     const derashMockData = {

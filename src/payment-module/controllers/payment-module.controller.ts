@@ -21,104 +21,119 @@ export class PaymentModuleController {
 
   @UseGuards(AuthenticatedGuard)
   @Post()
-  async create(
-    @Body() createPaymentModuleDto: CreatePaymentModuleDto,
-    @Request() req: any,
-  ) {
-    const id = req.user.userId;
-    const user = await this.userService.findById(id);
+  // async create(
+  //   @Body() createPaymentModuleDto: CreatePaymentModuleDto,
+  //   @Request() req: any,
+  // ) {
+  //   const id = req.user.userId;
+  //   const user = await this.userService.findById(id);
 
-    if (!user) {
-      return {
-        message: 'user not found',
-        status: false,
-      };
-    }
+  //   if (!user) {
+  //     return {
+  //       message: 'user not found',
+  //       status: false,
+  //     };
+  //   }
 
-    const isTransactionSuccessful =
-      await this.paymentModuleService.mockSmilePayTransaction();
+  //   const isTransactionSuccessful =
+  //     await this.paymentModuleService.mockSmilePayTransaction();
 
-    if (isTransactionSuccessful.statusCode !== 200) {
-      return {
-        message: 'transaction not successful',
-        status: false,
-      };
-    }
+  //   if (isTransactionSuccessful.statusCode !== 200) {
+  //     return {
+  //       message: 'transaction not successful',
+  //       status: false,
+  //     };
+  //   }
 
-    const derashApiKey = process.env.DERASH_API_KEY;
-    const derashApiSecret = process.env.DERASH_API_SECRET;
-    const derashBaseUrl = process.env.DERASH_API_URL;
+  //   const derashApiKey = process.env.DERASH_API_KEY;
+  //   const derashApiSecret = process.env.DERASH_API_SECRET;
+  //   const derashBaseUrl = process.env.DERASH_API_URL;
 
-    // const derashMockData = {
-    //   manifest_id: '1263582990003',
-    //   bill_id: '1263582990003',
-    //   amount: '390432.20',
-    //   paid_dt: '2017-06-08',
-    //   payee_mobile: '0911987654',
-    //   paid_at: 'Arat Kilo branch',
-    //   txn_code: '1263582990003',
-    // };
-    let derashResponse;
+  //   // const derashMockData = {
+  //   //   manifest_id: '1263582990003',
+  //   //   bill_id: '1263582990003',
+  //   //   amount: '390432.20',
+  //   //   paid_dt: '2017-06-08',
+  //   //   payee_mobile: '0911987654',
+  //   //   paid_at: 'Arat Kilo branch',
+  //   //   txn_code: '1263582990003',
+  //   // };
+  //   let derashResponse;
 
-    try {
-      Logger.log(
-        `derash request: ${JSON.stringify(
-          isTransactionSuccessful.data,
-        )} to ${derashBaseUrl}agent/customer-bill-data`,
-      );
-      derashResponse = await axios.post(
-        `${derashBaseUrl}agent/customer-bill-data`,
-        isTransactionSuccessful.data,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'api-key': derashApiKey,
-            'api-secret': derashApiSecret,
-          },
-        },
-      );
+  //   try {
+  //     Logger.log(
+  //       `derash request: ${JSON.stringify(
+  //         isTransactionSuccessful.data,
+  //       )} to ${derashBaseUrl}agent/customer-bill-data`,
+  //     );
+  //     // derashResponse = await axios.post(
+  //     //   `${derashBaseUrl}agent/customer-bill-data`,
+  //     //   isTransactionSuccessful.data,
+  //     //   {
+  //     //     headers: {
+  //     //       'Content-Type': 'application/json',
+  //     //       'api-key': derashApiKey,
+  //     //       'api-secret': derashApiSecret,
+  //     //     },
+  //     //   },
+  //     // );
 
-      Logger.log('derash response ', derashResponse);
-      Logger.log(`derash response: ${JSON.stringify(derashResponse.data)}`);
+  //     derashResponse = await axios.post(
+  //       `${derashBaseUrl}agent/customer-bill-data?status=200&bill_id=1263582990003&biller_id=1234567890`,
+  //       isTransactionSuccessful.data,
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'api-key': derashApiKey,
+  //           'api-secret': derashApiSecret,
+  //         },
+  //       },
+  //     );
 
-      // if the status code is not 200 we return the smile pay transaction
-      const reversedTrasnaction =
-        await this.paymentModuleService.mockSmilePayTransactionReverse();
+  //     Logger.log('derash response ', derashResponse);
+  //     Logger.log(`derash response: ${JSON.stringify(derashResponse.data)}`);
 
-      // if the status code is 200 we return the smile pay transaction
-      // we customize our response that the transaction is failed but
-      // the money is reversed
+  //     // if the status code is not 200 we return the smile pay transaction
+  //     const reversedTrasnaction =
+  //       await this.paymentModuleService.mockSmilePayTransactionReverse();
 
-      if (reversedTrasnaction.statusCode === 200) {
-        return {
-          message: 'transaction not successful but the money is reversed',
-          status: false,
-        };
-      }
+  //     // if the status code is 200 we return the smile pay transaction
+  //     // we customize our response that the transaction is failed but
+  //     // the money is reversed
 
-      return {
-        message: 'transaction successful',
-        status: true,
-      };
-    } catch (error) {
-      Logger.error(
-        'Error with Derash API:',
-        error.response ? error.response.data : error.message,
-      );
+  //     if (reversedTrasnaction.statusCode === 200) {
+  //       return {
+  //         message: 'transaction not successful but the money is reversed',
+  //         status: false,
+  //       };
+  //     }
 
-      if (error.response) {
-        return {
-          message: error.response.data.message || 'Error from Derash API',
-          status: false,
-          statusCode: error.response.status,
-        };
-      } else {
-        // This means the error wasn't due to a server response, could be network issues or other problems.
-        return {
-          message: error.message,
-          status: false,
-        };
-      }
-    }
+  //     return {
+  //       message: 'transaction successful',
+  //       status: true,
+  //     };
+  //   } catch (error) {
+  //     Logger.error(
+  //       'Error with Derash API:',
+  //       error.response ? error.response.data : error.message,
+  //     );
+
+  //     if (error.response) {
+  //       return {
+  //         message: error.response.data.message || 'Error from Derash API',
+  //         status: false,
+  //         statusCode: error.response.status,
+  //       };
+  //     } else {
+  //       // This means the error wasn't due to a server response, could be network issues or other problems.
+  //       return {
+  //         message: error.message,
+  //         status: false,
+  //       };
+  //     }
+  //   }
+  // }
+  async create() {
+    return this.paymentModuleService.create();
   }
 }
