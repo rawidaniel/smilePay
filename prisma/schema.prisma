@@ -59,3 +59,12 @@ model Status {
 
   @@map("status")
 }
+
+model Session {
+  sid    String   @id @unique
+  sess   Json
+  expire DateTime 
+
+  @@index([expire])
+  @@map(name: "session")
+}
