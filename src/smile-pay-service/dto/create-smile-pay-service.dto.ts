@@ -14,7 +14,17 @@ export class ReverseSmilePayServiceDto {
   transactionCode: string;
 }
 
-export class QueryDto {
+export class PaymentQueryDto {
+  @IsString()
+  @IsNotEmpty()
+  statusOne: string;
+
+  @IsString()
+  @IsNotEmpty()
+  statusTwo: string;
+}
+
+export class SmileQueryDto {
   @IsString()
   @IsNotEmpty()
   status: string;

@@ -36,26 +36,27 @@ export class SmilePayServiceService {
     }
 
     // if (Math.random() < 0.35) {
-    if (status === '500') {
-      throw new HttpException(
-        'System error. Please try again later.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+
+    if (status === '200') {
+      user.balance -= dto.amount;
+
+      const transactionCode = this.generateMockTransactionId();
+      const manifestId = '1263582990003';
+      return {
+        manifest_id: manifestId,
+        bill_id: manifestId,
+        amount: dto.amount.toFixed(2),
+        paid_dt: new Date().toISOString().split('T')[0],
+        payee_mobile: '0912345678',
+        paid_at: 'Arat Kilo branch',
+        txn_code: transactionCode,
+      };
     }
 
-    user.balance -= dto.amount;
-
-    const transactionCode = this.generateMockTransactionId();
-    const manifestId = '1263582990003';
-    return {
-      manifest_id: manifestId,
-      bill_id: manifestId,
-      amount: dto.amount.toFixed(2),
-      paid_dt: new Date().toISOString().split('T')[0],
-      payee_mobile: '0912345678',
-      paid_at: 'Arat Kilo branch',
-      txn_code: transactionCode,
-    };
+    throw new HttpException(
+      'System error. Please try again later.',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 
   async reverseTransaction(transactionCode: string) {

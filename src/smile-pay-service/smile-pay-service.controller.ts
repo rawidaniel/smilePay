@@ -9,7 +9,7 @@ import {
 import { SmilePayServiceService } from './smile-pay-service.service';
 import {
   CreateSmilePayServiceDto,
-  QueryDto,
+  SmileQueryDto,
 } from './dto/create-smile-pay-service.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
@@ -24,7 +24,7 @@ export class SmilePayServiceController {
   @Post()
   create(
     @Body() createSmilePayServiceDto: CreateSmilePayServiceDto,
-    @Query() query: QueryDto,
+    @Query() query: SmileQueryDto,
   ) {
     return this.smilePayServiceService.initiatePayment(
       createSmilePayServiceDto,
