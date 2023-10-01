@@ -1,0 +1,100 @@
+version: '3.8'
+services:
+
+  nest-api-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest-api-1
+    restart: unless-stopped
+    # expose:
+    #   - 3000
+    # ports:
+    #   - '3011:3000'
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env.docker
+    environment:
+      - PORT=3000
+    networks:
+      - application_network
+
+  nest-api-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest-api-2
+    restart: unless-stopped
+    # expose:
+    #   - 3000
+    # ports:
+    #   - '3022:3000'
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env.docker
+    environment:
+      - PORT=3000
+    networks:
+      - application_network
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=smilepay
+      - POSTGRES_PASSWORD=smilepay
+      - POSTGRES_DB=smilepay
+    # expose:
+    #   - 5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    networks:
+      - application_network
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis:/data
+    # expose:
+    #   - 6379
+    # ports:
+    #   - '6378:6379'
+    networks:
+      - application_network
+
+  haproxy:
+    image: haproxy:1.7
+    container_name: haproxy
+    restart: unless-stopped
+    ports:
+        - 8080:8080
+    expose:
+        - 8080
+    volumes:
+        - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    depends_on:
+      - nest-api-1
+      - nest-api-2
+    environment:
+        - NEST_1_IP=nest-api-1
+        - NEST_2_IP=nest-api-2
+        - NEST_EXPOSED_PORT=3000
+    networks:
+      - application_network
+
+volumes:
+  postgres:
+  redis:
+
+networks:
+  application_network:
