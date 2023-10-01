@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import * as session from 'express-session';
 import * as passport from 'passport';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -35,6 +35,10 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: '*',
+  });
+
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -48,7 +52,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   const PORT = process.env.PORT || 3000;
-  await app.listen(PORT);
-  console.log(`Application is running on port : ${PORT}`);
+  await app.listen(PORT).then(() => {
+    Logger.log(`Server running on http://localhost:${PORT}`, 'Bootstrap');
+    Logger.log(`Swagger running on http://localhost:${PORT}/api`, 'Bootstrap');
+  });
 }
 bootstrap();
