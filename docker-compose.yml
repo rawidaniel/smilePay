@@ -179,7 +179,12 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - 8118:80
+      - 80:80
+      - 81:81
+      - 82:82
+      - 83:83
+      - 84:84
+      - 85:85
     depends_on:
       - haproxy
       - cadvisor
