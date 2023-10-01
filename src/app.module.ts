@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PaymentModuleModule } from './payment-module/payment-module.module';
+import { DerashModule } from './derash/derash.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PaymentModuleModule } from './payment-module/payment-module.module';
     AuthModule,
     ConfigModule.forRoot(),
     PaymentModuleModule,
+    DerashModule,
   ],
   controllers: [AppController],
   providers: [AppService],

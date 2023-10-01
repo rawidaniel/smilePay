@@ -8,7 +8,17 @@ export class PaymentModuleService {
   async create(createPaymentModuleDto: CreatePaymentModuleDto) {}
 
   async mockSmilePayTransaction() {
+    const derashMockData = {
+      manifest_id: '12635829905003',
+      bill_id: '12635829900403',
+      amount: '390432.20',
+      paid_dt: '2017-06-08',
+      payee_mobile: '0911987654',
+      paid_at: 'Arat Kilo branch',
+      txn_code: '1263582990003',
+    };
     return {
+      data: derashMockData,
       message: 'transaction successful',
       statusCode: 200,
     };
