@@ -16,6 +16,7 @@ model User {
   fullName     String
   password     String
   smile_id     BigInt
+  balance      Float    @default(34000.34)
   account_type String
   created_at   DateTime      @default(now())
   last_updated DateTime      @updatedAt
