@@ -4,6 +4,9 @@ import exp from 'constants';
 export class CreateSmilePayServiceDto {
   @IsPositive()
   amount: number;
+
+  @IsString()
+  userId: string;
 }
 
 export class ReverseSmilePayServiceDto {

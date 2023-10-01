@@ -26,6 +26,10 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: '*',
+  });
+
   app.use(passport.initialize());
   app.use(passport.session());
 

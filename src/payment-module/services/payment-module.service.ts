@@ -1,58 +1,81 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { CreatePaymentModuleDto } from '../dto/create-payment-module.dto';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  CreatePaymentModuleDto,
+  SmilePayApiDto,
+} from '../dto/create-payment-module.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import axios from 'axios';
+import { CreateSmilePayServiceDto } from 'src/smile-pay-service/dto/create-smile-pay-service.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PaymentModuleService {
-  constructor(private prisma: PrismaService) {}
-  async create() {
-    let smileResponse;
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {}
+
+  public baseUrl = this.configService.get('API_URL');
+
+  async create(
+    createPaymentModuleDto: CreatePaymentModuleDto,
+    userId: number,
+  ) {}
+  async paySmileBill(createSmileTransaction: SmilePayApiDto) {
+    Logger.log(createSmileTransaction, 'createSmileTransaction');
+
+    const smilePayApiUrl =
+      this.baseUrl +
+      'smile-pay-service' +
+      `?status=${createSmileTransaction.status}`;
+
+    Logger.log(smilePayApiUrl, 'smilePayApiUrl');
+
     try {
-      smileResponse = await axios.post(
-        `${process.env.API_URL}smile-pay-service?status=200`,
-        200,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
+      const smilePayApi = await axios.post(smilePayApiUrl, {
+        amount: createSmileTransaction.amount,
+      });
 
-      return smileResponse.data;
+      Logger.log(smilePayApi, 'smilePayApi');
+      return smilePayApi.data;
     } catch (error) {
-      throw new HttpException(error.response.data, error.response.status);
+      Logger.error(error, 'error');
+      if (error.response) {
+        Logger.error(`Error from SmilePay API: ${error}`);
+
+        throw new HttpException(
+          'Error sending request to SmilePay API',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+
+        // switch (error.response.status) {
+        //   case 400:
+        //     throw new HttpException(
+        //       'Bad Request from SmilePay API',
+        //       HttpStatus.BAD_REQUEST,
+        //     );
+        //   case 401:
+        //     throw new HttpException(
+        //       'Unauthorized Access to SmilePay API',
+        //       HttpStatus.UNAUTHORIZED,
+        //     );
+        //   case 404:
+        //     throw new HttpException(
+        //       'SmilePay API Not Found',
+        //       HttpStatus.NOT_FOUND,
+        //     );
+        //   default:
+        //     throw new HttpException(
+        //       'Internal Server Error',
+        //       HttpStatus.INTERNAL_SERVER_ERROR,
+        //     );
+        // }
+      } else {
+        throw new HttpException(
+          'Error sending request to SmilePay API',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
-  }
-
-  async mockSmilePayTransaction() {
-    const derashMockData = {
-      manifest_id: '12635829905003',
-      bill_id: '12635829900403',
-      amount: '390432.20',
-      paid_dt: '2017-06-08',
-      payee_mobile: '0911987654',
-      paid_at: 'Arat Kilo branch',
-      txn_code: '1263582990003',
-    };
-    return {
-      data: derashMockData,
-      message: 'transaction successful',
-      statusCode: 200,
-    };
-  }
-
-  async mockSmilePayTransactionFail() {
-    return {
-      message: 'transaction not successful',
-      statusCode: 400,
-    };
-  }
-
-  async mockSmilePayTransactionReverse() {
-    return {
-      message: 'transaction reversed',
-      statusCode: 200,
-    };
   }
 }

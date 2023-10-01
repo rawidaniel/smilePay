@@ -9,13 +9,14 @@ import { SmilePayServiceModule } from './smile-pay-service/smile-pay-service.mod
 import { PaymentModuleModule } from './payment-module/payment-module.module';
 import { DerashModule } from './derash/derash.module';
 
-
 @Module({
   imports: [
     PrismaModule,
     UsersModule,
     AuthModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     SmilePayServiceModule,
     PaymentModuleModule,
     DerashModule,

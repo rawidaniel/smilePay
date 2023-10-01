@@ -21,16 +21,13 @@ export class SmilePayServiceController {
     private readonly smilePayServiceService: SmilePayServiceService,
   ) {}
 
-  @UseGuards(AuthenticatedGuard)
   @Post()
   create(
     @Body() createSmilePayServiceDto: CreateSmilePayServiceDto,
-    @Request() req,
     @Query() query: QueryDto,
   ) {
     return this.smilePayServiceService.initiatePayment(
       createSmilePayServiceDto,
-      req.user.userId,
       query.status,
     );
   }

@@ -2,16 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSmilePayServiceDto } from './dto/create-smile-pay-service.dto';
 import { UpdateSmilePayServiceDto } from './dto/update-smile-pay-service.dto';
 import { UsersService } from 'src/users/users.service';
+import { create } from 'domain';
 
 @Injectable()
 export class SmilePayServiceService {
   constructor(private readonly usersService: UsersService) {}
 
-  async initiatePayment(
-    dto: CreateSmilePayServiceDto,
-    userId: string,
-    status: string,
-  ) {
+  async initiatePayment(dto: CreateSmilePayServiceDto, status: string) {
+    const userId = dto.userId;
     console.log('initiatePayment', userId);
     const user = await this.usersService.findById(userId);
 
@@ -38,7 +36,7 @@ export class SmilePayServiceService {
     }
 
     // if (Math.random() < 0.35) {
-    if (status === '500 ') {
+    if (status === '500') {
       throw new HttpException(
         'System error. Please try again later.',
         HttpStatus.INTERNAL_SERVER_ERROR,
