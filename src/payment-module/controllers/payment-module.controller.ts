@@ -5,120 +5,107 @@ import {
   UseGuards,
   Request,
   Logger,
+  HttpException,
+  HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { PaymentModuleService } from '../services/payment-module.service';
-import { CreatePaymentModuleDto } from '../dto/create-payment-module.dto';
+import {
+  CreatePaymentModuleDto,
+  SmilePayApiDto,
+} from '../dto/create-payment-module.dto';
 import { UsersService } from 'src/users/users.service';
 import { AuthenticatedGuard } from 'src/auth/guards/authenticated.guard';
 import axios from 'axios';
+import { PaymentQueryDto } from 'src/smile-pay-service/dto/create-smile-pay-service.dto';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Controller('payment')
 export class PaymentModuleController {
   constructor(
     private readonly paymentModuleService: PaymentModuleService,
     private userService: UsersService,
+    private configService: ConfigService,
+    private prisma: PrismaService,
   ) {}
 
   @UseGuards(AuthenticatedGuard)
   @Post()
   async create(
     @Body() createPaymentModuleDto: CreatePaymentModuleDto,
-    @Request() req: any,
+    @Query() query: PaymentQueryDto,
+    @Request() req,
   ) {
-    const id = req.user.userId;
-    const user = await this.userService.findById(id);
+    const userId = req.user.userId;
 
+    // check the user exists
+    const user = await this.userService.findById(userId);
     if (!user) {
-      return {
-        message: 'user not found',
-        status: false,
-      };
+      throw new HttpException('User not found', 404);
     }
 
-    const isTransactionSuccessful =
-      await this.paymentModuleService.mockSmilePayTransaction();
-
-    if (isTransactionSuccessful.statusCode !== 200) {
-      return {
-        message: 'transaction not successful',
-        status: false,
-      };
-    }
-
-    const derashApiKey = process.env.DERASH_API_KEY;
-    const derashApiSecret = process.env.DERASH_API_SECRET;
-    const derashBaseUrl = process.env.DERASH_API_URL;
-
-    // const derashMockData = {
-    //   manifest_id: '1263582990003',
-    //   bill_id: '1263582990003',
-    //   amount: '390432.20',
-    //   paid_dt: '2017-06-08',
-    //   payee_mobile: '0911987654',
-    //   paid_at: 'Arat Kilo branch',
-    //   txn_code: '1263582990003',
-    // };
-    let derashResponse;
+    Logger.log(userId, 'userId');
 
     try {
-      Logger.log(
-        `derash request: ${JSON.stringify(
-          isTransactionSuccessful.data,
-        )} to ${derashBaseUrl}agent/customer-bill-data`,
-      );
-      derashResponse = await axios.post(
-        `${derashBaseUrl}agent/customer-bill-data`,
-        isTransactionSuccessful.data,
+      // if yes make payment to smile pay api
+      const smilePayTransaction = await this.paymentModuleService.paySmileBill(
         {
-          headers: {
-            'Content-Type': 'application/json',
-            'api-key': derashApiKey,
-            'api-secret': derashApiSecret,
-          },
+          amount: createPaymentModuleDto.amount,
+          status: query.statusOne,
         },
+        userId,
       );
+      Logger.log(smilePayTransaction, 'smilePayTransaction');
 
-      Logger.log('derash response ', derashResponse);
-      Logger.log(`derash response: ${JSON.stringify(derashResponse.data)}`);
-
-      // if the status code is not 200 we return the smile pay transaction
-      const reversedTrasnaction =
-        await this.paymentModuleService.mockSmilePayTransactionReverse();
-
-      // if the status code is 200 we return the smile pay transaction
-      // we customize our response that the transaction is failed but
-      // the money is reversed
-
-      if (reversedTrasnaction.statusCode === 200) {
-        return {
-          message: 'transaction not successful but the money is reversed',
-          status: false,
-        };
+      if (query.statusOne === '200' && smilePayTransaction) {
+        // const bill_payment = await this.prisma.billPayment.create({
+        //   data: {
+        //     manifest_id: smilePayTransaction.manifest_id,
+        //     bill_id: smilePayTransaction.bill_id,
+        //     biller_id: smilePayTransaction.manifest_id,
+        //     amount: smilePayTransaction.amount,
+        //     paid_data: smilePayTransaction.paid_dt,
+        //     paid_at: smilePayTransaction.paid_at,
+        //     payee_mobile: smilePayTransaction.payee_mobile,
+        //     txn_id: smilePayTransaction.txn_code,
+        //     confirmation_code: smilePayTransaction.confirmation_code,
+        //     user_id: userId,
+        //   },
+        // });
       }
 
-      return {
-        message: 'transaction successful',
-        status: true,
+      // return smilePayTransaction;
+
+      // if there is error handle the error into user friendly message
+
+      // if there is no error call the derash api to pay the bill
+      const queryString = {
+        status: query.statusTwo,
+        bill_id: smilePayTransaction.bill_id,
+        biller_id: smilePayTransaction.manifest_id,
       };
-    } catch (error) {
-      Logger.error(
-        'Error with Derash API:',
-        error.response ? error.response.data : error.message,
+      const apiSecret = this.configService.get('DERASH_API_SECRET');
+      const apiKey = this.configService.get('DERASH_API_KEY');
+      const derashTransaction = await this.paymentModuleService.DerashPaymnet(
+        apiSecret,
+        apiKey,
+        queryString,
+        smilePayTransaction,
       );
 
-      if (error.response) {
-        return {
-          message: error.response.data.message || 'Error from Derash API',
-          status: false,
-          statusCode: error.response.status,
-        };
-      } else {
-        // This means the error wasn't due to a server response, could be network issues or other problems.
-        return {
-          message: error.message,
-          status: false,
-        };
-      }
+      return derashTransaction;
+      // if there is error handle the error into user friendly message
+
+      // the reverse the transaction using smile pay reverse api
+
+      // if ther is no error send message to user that the transaction is successful and
+      // confirmation code that we got from derash api
+    } catch (error) {
+      throw new HttpException(
+        error.response ? error.response : 'An error occurred.',
+        error.response ? error.status : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

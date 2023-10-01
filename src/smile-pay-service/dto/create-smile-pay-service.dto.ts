@@ -1,14 +1,31 @@
-import { IsPositive, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsPositive, IsString, IsUUID } from 'class-validator';
+import exp from 'constants';
 
 export class CreateSmilePayServiceDto {
-  @IsUUID()
-  userId: string;
-
   @IsPositive()
   amount: number;
+
+  @IsString()
+  userId: string;
 }
 
 export class ReverseSmilePayServiceDto {
   @IsUUID()
   transactionCode: string;
+}
+
+export class PaymentQueryDto {
+  @IsString()
+  @IsNotEmpty()
+  statusOne: string;
+
+  @IsString()
+  @IsNotEmpty()
+  statusTwo: string;
+}
+
+export class SmileQueryDto {
+  @IsString()
+  @IsNotEmpty()
+  status: string;
 }
