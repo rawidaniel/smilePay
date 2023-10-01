@@ -49,26 +49,26 @@ export class PaymentModuleController {
     const derashApiSecret = process.env.DERASH_API_SECRET;
     const derashBaseUrl = process.env.DERASH_API_URL;
 
-    const derashMockData = {
-      manifest_id: '1263582990003',
-      bill_id: '1263582990003',
-      amount: '390432.20',
-      paid_dt: '2017-06-08',
-      payee_mobile: '0911987654',
-      paid_at: 'Arat Kilo branch',
-      txn_code: '1263582990003',
-    };
+    // const derashMockData = {
+    //   manifest_id: '1263582990003',
+    //   bill_id: '1263582990003',
+    //   amount: '390432.20',
+    //   paid_dt: '2017-06-08',
+    //   payee_mobile: '0911987654',
+    //   paid_at: 'Arat Kilo branch',
+    //   txn_code: '1263582990003',
+    // };
     let derashResponse;
 
     try {
       Logger.log(
         `derash request: ${JSON.stringify(
-          derashMockData,
+          isTransactionSuccessful.data,
         )} to ${derashBaseUrl}agent/customer-bill-data`,
       );
       derashResponse = await axios.post(
         `${derashBaseUrl}agent/customer-bill-data`,
-        derashMockData,
+        isTransactionSuccessful.data,
         {
           headers: {
             'Content-Type': 'application/json',
