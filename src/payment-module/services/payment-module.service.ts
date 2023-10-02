@@ -23,6 +23,15 @@ export class PaymentModuleService {
     userId: number,
   ) {}
 
+  async reteriveAllPayments() {
+    return await this.prisma.billPayment.findMany();
+  }
+
+  async reterivePayment(userId: string) {
+    return await this.prisma.billPayment.findMany({
+      where: { user_id: userId },
+    });
+  }
   async paySmileBill(createSmileTransaction: SmilePayApiDto, userId: number) {
     Logger.log(createSmileTransaction, 'createSmileTransaction');
 
