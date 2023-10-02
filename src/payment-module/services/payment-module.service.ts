@@ -53,7 +53,6 @@ export class PaymentModuleService {
     } catch (error) {
       Logger.error(error, 'error');
 
-      console.log('first error');
       throw new HttpException(
         error.response.data.message,
         error.response.status,
@@ -93,7 +92,6 @@ export class PaymentModuleService {
     query: QueryDto,
     response,
   ) {
-    Logger.log(query, 'querysecondddddddd');
     const DerashApiUrl =
       this.baseUrl +
       'agent/customer-bill-data' +
@@ -112,8 +110,6 @@ export class PaymentModuleService {
       Logger.log(derashResponse.data, 'derashResponse');
       return derashResponse.data;
     } catch (error) {
-      console.log('second error');
-
       throw new HttpException(
         error.response.data.message,
         error.response.status,
