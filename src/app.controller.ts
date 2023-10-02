@@ -11,4 +11,15 @@ export class AppController {
   status() {
     return { status: 'OK!' };
   }
+
+  @Get('/ping')
+  pingPong() {
+    console.log('pong');
+    return 'pong';
+  }
+
+  @Get('/error')
+  throwError() {
+    throw new Error('this is test error');
+  }
 }

@@ -1,5 +1,7 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SentryFilter } from './filters/sentry.filter';
+import * as Sentry from '@sentry/node';
 
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
@@ -9,6 +11,13 @@ import { promisify } from 'util';
 async function bootstrap() {
   // const redisClient = Redis.createClient();
   const app = await NestFactory.create(AppModule);
+
+  Sentry.init({
+    dsn: process.env.SENTRY_DNS,
+  });
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new SentryFilter(httpAdapter));
 
   // app.use(async (req, res, next) => {
   //   const sessionId = req.session.id;
@@ -58,7 +67,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
   await app.listen(PORT).then(() => {
     Logger.log(`Server running on http://localhost:${PORT}`, 'Bootstrap');
     Logger.log(`Swagger running on http://localhost:${PORT}/api`, 'Bootstrap');
