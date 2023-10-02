@@ -27,6 +27,12 @@ jobs:
       - name: Run Build
         run: npm run build
 
+      - name: Run Test
+        run: npm run test
+
+     - name: Run Audit
+        run: npm run audit
+
       - name: Zip Artifact
         run: tar -cvf artifact.tar.gz dist
 

@@ -36,3 +36,8 @@ scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['cadvisor:8080']
+
+
+  - job_name: 'remote-server'
+    static_configs:
+      - targets: ['100.26.138.239:9100']

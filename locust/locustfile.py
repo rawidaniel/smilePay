@@ -9,3 +9,7 @@ class QuickstartUser(HttpUser):
     @task
     def status_check(self):
         self.client.get("/status")
+
+    @task
+    def status_ping(self):
+        self.client.get("/ping")
