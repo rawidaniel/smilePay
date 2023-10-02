@@ -1,0 +1,62 @@
+name: SMILEPAY CICD PIPELINE
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  pull_request:
+    branches:
+      - main
+      - production
+    types: [opened, synchronize]
+
+jobs:
+  smilepay_cicd_pipeline:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install packages
+        run: npm i
+
+      - name: Run Build
+        run: npm run build
+
+      - name: Run Test
+        run: npm run test
+
+     - name: Run Audit
+        run: npm run audit
+
+      - name: Zip Artifact
+        run: tar -cvf artifact.tar.gz dist
+
+      - name: Move artifact to ansible files
+        run: mv artifact.tar.gz ansible/roles/deploy/files/artifact.tar.gz
+
+      - name: Add IP address of target host
+        run: echo "${{ secrets.SERVER_IP }}" >> ansible/inventory.txt
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Configure server
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: configure-server.yml
+          directory: ./ansible
+          options: --inventory inventory.txt
+          
+      - name: Deploy application
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: deploy-backend.yml
+          directory: ./ansible
+          options: --inventory inventory.txt

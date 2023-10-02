@@ -1,12 +1,25 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiOkResponse } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @ApiOkResponse({ description: 'Shows the status of the server' })
+  @Get('/status')
+  status() {
+    return { status: 'OK!' };
+  }
+
+  @Get('/ping')
+  pingPong() {
+    console.log('pong');
+    return 'pong';
+  }
+
+  @Get('/error')
+  throwError() {
+    throw new Error('this is test error');
   }
 }
