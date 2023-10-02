@@ -18,11 +18,6 @@ export class PaymentModuleService {
 
   public baseUrl = this.configService.get('API_URL');
 
-  async create(
-    createPaymentModuleDto: CreatePaymentModuleDto,
-    userId: number,
-  ) {}
-
   async reteriveAllPayments() {
     return await this.prisma.billPayment.findMany();
   }
@@ -78,7 +73,6 @@ export class PaymentModuleService {
     } catch (error) {
       Logger.error(error, 'error');
 
-      console.log('first error');
       throw new HttpException(
         error.response.data.message,
         error.response.status,

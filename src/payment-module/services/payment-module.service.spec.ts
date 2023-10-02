@@ -216,7 +216,6 @@ describe('PaymentModuleService', () => {
   });
 
   it('should throw error of Partial payment is not allowed', async () => {
-    console.log('hereeeeeeeeeee');
     const data = {
       manifest_id: '1263582990003',
       bill_id: '1263582990003',
