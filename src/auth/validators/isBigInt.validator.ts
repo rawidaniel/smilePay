@@ -6,7 +6,6 @@ import {
 
 @ValidatorConstraint({ async: false })
 export class IsBigIntConstraint implements ValidatorConstraintInterface {
-  //   validate(value: any, args: ValidationArguments): boolean {
   validate(value: any): boolean {
     try {
       BigInt(value);

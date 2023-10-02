@@ -3,9 +3,7 @@ import {
   CreateSmilePayServiceDto,
   ReversetTransaction,
 } from './dto/create-smile-pay-service.dto';
-import { UpdateSmilePayServiceDto } from './dto/update-smile-pay-service.dto';
 import { UsersService } from '../users/users.service';
-import { create } from 'domain';
 
 @Injectable()
 export class SmilePayServiceService {
@@ -13,16 +11,12 @@ export class SmilePayServiceService {
 
   async initiatePayment(dto: CreateSmilePayServiceDto, status: string) {
     const userId = dto.userId;
-    console.log('initiatePayment', userId);
     const user = await this.usersService.findById(userId);
 
     if (!user) {
       throw new HttpException('User does not exist.', HttpStatus.NOT_FOUND);
     }
 
-    // update the user type to include a balance field
-
-    // if (dto.amount <= 0) {
     if (status === '400') {
       throw new HttpException(
         'Invalid transaction amount.',
@@ -30,15 +24,12 @@ export class SmilePayServiceService {
       );
     }
 
-    // if (user.balance < dto.amount) {
     if (status === '402') {
       throw new HttpException(
         'Insufficient funds.',
         HttpStatus.PAYMENT_REQUIRED,
       );
     }
-
-    // if (Math.random() < 0.35) {
 
     if (status === '200') {
       user.balance -= dto.amount;
