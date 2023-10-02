@@ -142,20 +142,6 @@ services:
     depends_on:
       - prometheus
 
-  jenkins:
-    image: jenkins/jenkins
-    container_name: jenkins
-    restart: unless-stopped
-    # ports:
-    #   - "7070:8080"
-    volumes:
-      - jenkins:/var/jenkins_home
-    networks:
-      - application_network
-    depends_on:
-      - nest-api-1
-      - nest-api-2
-
   locust:
     image: locustio/locust
     container_name: locust
@@ -184,13 +170,11 @@ services:
       - 83:83
       - 84:84
       - 85:85
-      - 86:86
     depends_on:
       - haproxy
       - cadvisor
       - prometheus
       - grafana
-      - jenkins
       - locust
     networks:
       - load_testing_network
@@ -201,7 +185,6 @@ volumes:
   postgres:
   redis:
   grafana:
-  jenkins:
 
 networks:
   load_testing_network:

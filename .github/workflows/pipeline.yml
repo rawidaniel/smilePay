@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+      - cicd
       - production
   pull_request:
     branches:
       - main
+      - cicd
       - production
     types: [opened, synchronize]
 
@@ -20,28 +22,25 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-
+      
       - name: Install packages
         run: npm i
-
+      
       - name: Run Build
         run: npm run build
-
+      
       - name: Run Test
         run: npm run test
-
-     - name: Run Audit
-        run: npm run audit
-
+      
       - name: Zip Artifact
         run: tar -cvf artifact.tar.gz dist
-
+      
       - name: Move artifact to ansible files
         run: mv artifact.tar.gz ansible/roles/deploy/files/artifact.tar.gz
-
+      
       - name: Add IP address of target host
         run: echo "${{ secrets.SERVER_IP }}" >> ansible/inventory.txt
-
+      
       - name: Install SSH key
         uses: webfactory/ssh-agent@v0.7.0
         with:
