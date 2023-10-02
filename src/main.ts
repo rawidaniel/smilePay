@@ -4,53 +4,20 @@ import { SentryFilter } from './filters/sentry.filter';
 import * as Sentry from '@sentry/node';
 
 import { AppModule } from './app.module';
-import * as session from 'express-session';
-import * as passport from 'passport';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Pool } from 'pg';
-import * as PgSession from 'connect-pg-simple';
 import * as Redis from 'redis';
 import { promisify } from 'util';
 
 async function bootstrap() {
-  const pgPool = new Pool({
-    // Your PostgreSQL configuration here
-    user: 'smilepay',
-    host: 'localhost',
-    database: 'smilepay',
-    password: 'smilepay',
-    port: 5433,
-  });
-  const PgStore = PgSession(session);
   // const redisClient = Redis.createClient();
   const app = await NestFactory.create(AppModule);
-
-  const configService = app.get(ConfigService);
 
   Sentry.init({
     dsn: process.env.SENTRY_DNS,
   });
 
-  app.setGlobalPrefix('/api');
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new SentryFilter(httpAdapter));
-  app.use(
-    session({
-      store: new PgStore({
-        pool: pgPool,
-        tableName: 'session',
-      }),
-      secret: configService.get('SESSION_SECRET'),
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: configService.get('NODE_ENV') === 'production',
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      },
-    }),
-  );
 
   // app.use(async (req, res, next) => {
   //   const sessionId = req.session.id;
@@ -87,8 +54,8 @@ async function bootstrap() {
     origin: '*',
   });
 
-  app.use(passport.initialize());
-  app.use(passport.session());
+  // app.use(passport.initialize());
+  // app.use(passport.session());
 
   const config = new DocumentBuilder()
     .addCookieAuth()

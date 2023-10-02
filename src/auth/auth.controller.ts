@@ -39,7 +39,8 @@ export class AuthController {
   @Post('signup')
   @Seralize(UserDto)
   async signup(@Body() body: CreateUserDto): Promise<AuthResponse> {
-    return this.authService.register(body);
+    const response = await this.authService.register(body);
+    return response;
   }
 
   @ApiOkResponse({

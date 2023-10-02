@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SmilePayServiceService } from './smile-pay-service.service';
 import { SmilePayServiceController } from './smile-pay-service.controller';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [UsersModule],
