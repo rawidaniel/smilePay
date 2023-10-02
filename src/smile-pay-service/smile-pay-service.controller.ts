@@ -9,6 +9,8 @@ import {
 import { SmilePayServiceService } from './smile-pay-service.service';
 import {
   CreateSmilePayServiceDto,
+  ReverseSmilePayServiceDto,
+  ReversetTransaction,
   SmileQueryDto,
 } from './dto/create-smile-pay-service.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -33,7 +35,7 @@ export class SmilePayServiceController {
   }
 
   @Post('reverse')
-  reverseTransaction(@Body() transactionCode: string) {
+  reverseTransaction(@Body() transactionCode: ReversetTransaction) {
     return this.smilePayServiceService.reverseTransaction(transactionCode);
   }
 }

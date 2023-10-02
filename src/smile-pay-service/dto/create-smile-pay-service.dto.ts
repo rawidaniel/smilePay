@@ -29,3 +29,8 @@ export class SmileQueryDto {
   @IsNotEmpty()
   status: string;
 }
+
+export class ReversetTransaction {
+  @IsString()
+  transactionCode: string;
+}
