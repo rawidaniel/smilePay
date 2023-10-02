@@ -3,12 +3,12 @@ import {
   CreatePaymentModuleDto,
   SmilePayApiDto,
 } from '../dto/create-payment-module.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import axios from 'axios';
-import { CreateSmilePayServiceDto } from 'src/smile-pay-service/dto/create-smile-pay-service.dto';
-import { ConfigService } from '@nestjs/config';
-import { QueryDto } from 'src/derash/dtos/query.dto';
+import { CreateSmilePayServiceDto } from '../../smile-pay-service/dto/create-smile-pay-service.dto';
 
+import { ConfigService } from '@nestjs/config';
+import { QueryDto } from '../../derash/dtos/query.dto';
 @Injectable()
 export class PaymentModuleService {
   constructor(

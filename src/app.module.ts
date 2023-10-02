@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -10,6 +10,8 @@ import { PaymentModuleModule } from './payment-module/payment-module.module';
 import { DerashModule } from './derash/derash.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
+import { SessionMiddleware } from './middlewares/session.middleware';
+import { PassportMiddleware } from './middlewares/passport.middleware';
 
 @Module({
   imports: [
@@ -32,4 +34,8 @@ import { APP_FILTER } from '@nestjs/core';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SessionMiddleware, PassportMiddleware).forRoutes('*'); // Apply for all routes
+  }
+}

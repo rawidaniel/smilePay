@@ -4,7 +4,7 @@ import {
   ReversetTransaction,
 } from './dto/create-smile-pay-service.dto';
 import { UpdateSmilePayServiceDto } from './dto/update-smile-pay-service.dto';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { create } from 'domain';
 
 @Injectable()
