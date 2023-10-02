@@ -63,13 +63,12 @@ export class AuthController {
   @Get('/logout')
   logout(@Request() req): any {
     req.session.destroy();
-    // return { msg: 'The user session has ended' };
   }
   // Get / protected
-  @UseGuards(AuthenticatedGuard)
-  @ApiCookieAuth() // replace 'session_cookie_name' with your session cookie's name
-  @Get('/protected')
-  getHello(@Request() req): string {
-    return req.user;
-  }
+  // @UseGuards(AuthenticatedGuard)
+  // @ApiCookieAuth()
+  // @Get('/protected')
+  // getHello(@Request() req): string {
+  //   return req.user;
+  // }
 }

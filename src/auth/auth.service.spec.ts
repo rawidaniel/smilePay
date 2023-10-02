@@ -10,7 +10,6 @@ describe('AuthService', () => {
 
   const saltOrRounds = 10;
 
-  // Mocking UsersService methods
   const mockUsersService = {
     findByEmail: jest.fn(),
     createUser: jest.fn(),
@@ -50,7 +49,6 @@ describe('AuthService', () => {
       password: await bcrypt.hash(data.password, saltOrRounds),
     };
     mockUsersService.findByEmail.mockResolvedValueOnce(null);
-    // mockPrismaService.user.create.mockResolvedValueOnce(data);
     mockUsersService.createUser.mockResolvedValueOnce(response);
 
     const user = await service.register(data);

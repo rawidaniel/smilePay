@@ -23,7 +23,7 @@ import axios from 'axios';
 import { PaymentQueryDto } from '../../smile-pay-service/dto/create-smile-pay-service.dto';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiCookieAuth } from '@nestjs/swagger';
 
 @ApiTags('payments')
 @Controller('payments')
@@ -37,6 +37,7 @@ export class PaymentModuleController {
 
   @UseGuards(AuthenticatedGuard)
   @Post()
+  @ApiCookieAuth()
   async create(
     @Body() createPaymentModuleDto: CreatePaymentModuleDto,
     @Query() query: PaymentQueryDto,
@@ -139,14 +140,15 @@ export class PaymentModuleController {
 
   @UseGuards(AuthenticatedGuard)
   @Get()
+  @ApiCookieAuth()
   async showPayments() {
     return this.paymentModuleService.reteriveAllPayments();
   }
 
   @UseGuards(AuthenticatedGuard)
   @Get('/:userId')
+  @ApiCookieAuth()
   async showPaymentsForSpecifcUser(@Param('userId') userId: string) {
-    console.log(userId, 'userid');
     return this.paymentModuleService.reterivePayment(userId);
   }
 }

@@ -1,9 +1,4 @@
-import {
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { QueryDto } from './dtos/query.dto';
 import { CustomerBillDataDto } from './dtos/customerBillData.dto';
 
