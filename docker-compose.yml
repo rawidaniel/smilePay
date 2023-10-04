@@ -124,6 +124,7 @@ services:
     #   - '9090:9090'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
     depends_on:
       - cadvisor
     networks:
@@ -185,6 +186,7 @@ volumes:
   postgres:
   redis:
   grafana:
+  prometheus:
 
 networks:
   load_testing_network:
