@@ -197,6 +197,20 @@ services:
       - application_network
       - monitoring_network
 
+  seq:
+    image: datalust/seq
+    container_name: seq
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=y
+    volumes:
+      - seq:/data
+    ports:
+      - '5341:5341'
+      - '8316:80'
+    networks:
+      - monitoring_network
+
 volumes:
   postgres:
   redis:
